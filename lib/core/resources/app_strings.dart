@@ -10,14 +10,24 @@ abstract final class AppStrings {
       'Please try again. If the problem continues, restart the app '
       'or contact support.';
 
-  // --- Home (placeholder) ---
-  static const String homeCounterHint =
-      'You have pushed the button this many times:';
-  static const String homeFabIncrementTooltip = 'Increment';
+  // --- Onboarding (placeholder) ---
+  static const String onboardingTitle = 'Welcome';
+  static const String onboardingSubtitle =
+      'Pet details will go here — name, birth date, breed, gender.';
+  static const String onboardingContinue = 'Continue';
+
+  // --- Shell prompt bar (fixed bottom on tab pages) ---
+  static const String shellPromptHint = 'Ask anything…';
+  static const String shellPromptSendTooltip = 'Send';
+
+  // --- Main shell (top tab bar) ---
+  static const String navFoodToys = 'Food & toys';
+  static const String navVeterinary = 'Veterinary';
+  static const String navMedication = 'Medication';
 
   // --- Routing ---
   static const String routeNotFoundTitle = 'Page not found';
   static const String routeNotFoundBody =
       'This link is invalid or the page was removed.';
-  static const String routeNotFoundBackHome = 'Back to home';
+  static const String routeNotFoundBack = 'Back to app';
 }

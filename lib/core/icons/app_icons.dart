@@ -1,10 +1,12 @@
 /// Material icon sets for the app.
 ///
 /// **Material Icons (classic)** — use [Icons] from `package:flutter/material.dart`
-/// (e.g. [Icons.shopping_cart]). The icon font is included when
+/// with the **rounded** style only (e.g. [Icons.medication_rounded]). The icon
+/// font is included when
 /// `uses-material-design: true` is set under `flutter:` in [pubspec.yaml].
 ///
-/// **Material Symbols** — Google’s current variable-font icon set; use [Symbols]:
+/// **Material Symbols** — use [Symbols] for names not in [Icons] (e.g.
+/// [Symbols.pet_supplies_rounded], [Symbols.pets_rounded]); prefer `*_rounded`:
 /// ```dart
 /// import 'package:adaptive_commerce/core/icons/app_icons.dart';
 /// Icon(Symbols.pets_rounded);

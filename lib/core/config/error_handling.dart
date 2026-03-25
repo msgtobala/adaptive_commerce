@@ -60,7 +60,7 @@ class _ReleaseErrorFallback extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.pets_outlined, size: 48, color: AppColors.primary),
+              Icon(Icons.pets_rounded, size: 48, color: AppColors.primary),
               const SizedBox(height: 16),
               Text(
                 AppStrings.errorGenericTitle,

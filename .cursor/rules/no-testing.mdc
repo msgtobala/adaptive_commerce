@@ -1,0 +1,26 @@
+---
+description: Do not write, run, or fix tests; never execute test commands after tasks
+alwaysApply: true
+---
+
+# No automated testing
+
+The author does not want tests for this app. Follow this strictly.
+
+## Shell / agent behavior (critical)
+
+- **Never run** test commands to verify work or after completing a task: `flutter test`, `dart test`, `pub run test`, `melos test`, or any path under `test/`.
+- **Do not** suggest running tests as a “sanity check” or post-edit step.
+- **Do not** open, create, edit, or “fix” files under `test/` or matching `*_test.dart` unless the user explicitly asks for test work.
+
+## Do not
+
+- Write or propose unit, widget, integration, golden, or E2E tests (including Flutter `test/`, `*_test.dart`, or similar).
+- Add test dependencies, CI test steps, or test configuration solely for coverage.
+- Refactor production code “for testability” unless the user explicitly asks.
+- Offer to “add tests later” or suggest testing as a follow-up unless the user brings it up.
+
+## Do
+
+- Focus on application code, docs, and tooling the user actually requests.
+- If the user explicitly asks for tests, follow that request; otherwise assume no tests.

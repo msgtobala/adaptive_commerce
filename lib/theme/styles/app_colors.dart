@@ -60,4 +60,12 @@ abstract final class AppColors {
   // --- Derived surfaces (M3-style layers on [background]) ---
   static const Color surfaceContainerLow = Color(0xFFF9F6F0);
   static const Color surfaceContainer = Color(0xFFF2EDE6);
+
+  // --- Main tab bar (Happy Paws — light pill, burgundy active chip) ---
+  /// Tab bar background (white lift on beige scaffold).
+  static const Color navBarBackground = surface;
+  /// Selected tab: icon + label on burgundy.
+  static const Color navBarActive = burgundy;
+  /// Unselected icons and labels (clay / muted brown).
+  static const Color navBarInactive = primary;
 }
