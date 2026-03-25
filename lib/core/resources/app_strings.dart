@@ -20,6 +20,13 @@ abstract final class AppStrings {
   static const String shellPromptHint = 'Ask anything…';
   static const String shellPromptSendTooltip = 'Send';
 
+  // --- Pet profile (shell header) ---
+  static const String petProfile = 'Pet Profile';
+  static const String petProfileDialogTitle = 'Pet profile';
+  static const String petProfileClose = 'Close';
+  static const String petProfileEmpty =
+      'No details yet. Finish onboarding to fill your pet profile.';
+
   // --- Main shell (top tab bar) ---
   static const String navFoodToys = 'Food & toys';
   static const String navVeterinary = 'Veterinary';

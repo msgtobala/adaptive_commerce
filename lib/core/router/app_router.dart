@@ -3,7 +3,7 @@ import 'package:adaptive_commerce/core/widgets/app_brand_header.dart';
 import 'package:adaptive_commerce/features/food_toys/food_toys_page.dart';
 import 'package:adaptive_commerce/features/medication/medication_page.dart';
 import 'package:adaptive_commerce/features/onboarding/onboarding_page.dart';
-import 'package:adaptive_commerce/features/shell/main_shell.dart';
+import 'package:adaptive_commerce/layout/main_layout.dart';
 import 'package:adaptive_commerce/features/vet/vet_page.dart';
 import 'package:adaptive_commerce/theme/styles/app_colors.dart';
 import 'package:flutter/foundation.dart';
@@ -25,7 +25,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return MainShell(navigationShell: navigationShell);
+          return MainLayout(navigationShell: navigationShell);
         },
         branches: [
           StatefulShellBranch(

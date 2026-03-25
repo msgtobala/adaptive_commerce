@@ -169,7 +169,43 @@ void _dispatchSubmit(
   );
 }
 
-class _PetTypeDropdownBody extends ConsumerWidget {
+/// Menu panel below the field. [menuWidth] must match the anchor (LayoutBuilder).
+/// Without min/max width, M3 menus use [IntrinsicWidth] and shrink to label size.
+MenuStyle _onboardingAnchorMenuStyle({
+  required double menuWidth,
+  double? maxHeight,
+}) {
+  return MenuStyle(
+    alignment: AlignmentDirectional.bottomStart,
+    minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
+    maximumSize: WidgetStatePropertyAll(
+      Size(menuWidth, maxHeight ?? double.infinity),
+    ),
+    backgroundColor: const WidgetStatePropertyAll(AppColors.surface),
+    elevation: const WidgetStatePropertyAll(6.0),
+    shadowColor: WidgetStatePropertyAll(
+      AppColors.burgundy.withValues(alpha: 0.12),
+    ),
+    shape: WidgetStatePropertyAll(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.divider),
+      ),
+    ),
+    padding: const WidgetStatePropertyAll(
+      EdgeInsets.symmetric(vertical: 4),
+    ),
+  );
+}
+
+double _menuWidthFromConstraints(BoxConstraints constraints, BuildContext context) {
+  if (constraints.hasBoundedWidth) {
+    return constraints.maxWidth;
+  }
+  return MediaQuery.sizeOf(context).width;
+}
+
+class _PetTypeDropdownBody extends ConsumerStatefulWidget {
   const _PetTypeDropdownBody({
     required this.label,
     required this.itemContext,
@@ -179,46 +215,109 @@ class _PetTypeDropdownBody extends ConsumerWidget {
   final CatalogItemContext itemContext;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PetTypeDropdownBody> createState() =>
+      _PetTypeDropdownBodyState();
+}
+
+class _PetTypeDropdownBodyState extends ConsumerState<_PetTypeDropdownBody> {
+  final MenuController _menuController = MenuController();
+
+  @override
+  Widget build(BuildContext context) {
     final profile = ref.watch(petProfileProvider);
+    final display = profile.petType == null
+        ? 'Select type'
+        : (profile.petType == PetKind.dog ? 'Dog' : 'Cat');
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            label,
+            widget.label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: AppColors.headline,
                   fontWeight: FontWeight.w600,
                 ),
           ),
           const SizedBox(height: 8),
-          InputDecorator(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              filled: true,
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<PetKind>(
-                isExpanded: true,
-                value: profile.petType,
-                hint: const Text('Select type'),
-                items: const [
-                  DropdownMenuItem(value: PetKind.dog, child: Text('Dog')),
-                  DropdownMenuItem(value: PetKind.cat, child: Text('Cat')),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final menuW = _menuWidthFromConstraints(constraints, context);
+              final itemStyle = MenuItemButton.styleFrom(
+                foregroundColor: AppColors.headline,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                minimumSize: Size(menuW, 48),
+                alignment: AlignmentDirectional.centerStart,
+              );
+              return MenuAnchor(
+                controller: _menuController,
+                crossAxisUnconstrained: false,
+                alignmentOffset: const Offset(0, 4),
+                style: _onboardingAnchorMenuStyle(menuWidth: menuW),
+                menuChildren: [
+                  MenuItemButton(
+                    style: itemStyle,
+                    onPressed: () {
+                      _menuController.close();
+                      ref.read(petProfileProvider.notifier).setPetType(PetKind.dog);
+                      _dispatchSubmit(widget.itemContext, 'petType', 'dog');
+                    },
+                    child: const Text('Dog'),
+                  ),
+                  MenuItemButton(
+                    style: itemStyle,
+                    onPressed: () {
+                      _menuController.close();
+                      ref.read(petProfileProvider.notifier).setPetType(PetKind.cat);
+                      _dispatchSubmit(widget.itemContext, 'petType', 'cat');
+                    },
+                    child: const Text('Cat'),
+                  ),
                 ],
-                onChanged: (v) {
-                  if (v == null) return;
-                  ref.read(petProfileProvider.notifier).setPetType(v);
-                  _dispatchSubmit(
-                    itemContext,
-                    'petType',
-                    v == PetKind.dog ? 'dog' : 'cat',
+                builder: (context, controller, child) {
+                  return InputDecorator(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      filled: true,
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(4),
+                      onTap: () {
+                        if (controller.isOpen) {
+                          controller.close();
+                        } else {
+                          controller.open();
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                display,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: profile.petType == null
+                                          ? Theme.of(context).hintColor
+                                          : AppColors.headline,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_drop_down_rounded,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                 },
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),
@@ -355,7 +454,7 @@ class _PetDobCalendarBody extends ConsumerWidget {
   }
 }
 
-class _PetBreedDropdownBody extends ConsumerWidget {
+class _PetBreedDropdownBody extends ConsumerStatefulWidget {
   const _PetBreedDropdownBody({
     required this.label,
     required this.itemContext,
@@ -365,11 +464,22 @@ class _PetBreedDropdownBody extends ConsumerWidget {
   final CatalogItemContext itemContext;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PetBreedDropdownBody> createState() =>
+      _PetBreedDropdownBodyState();
+}
+
+class _PetBreedDropdownBodyState extends ConsumerState<_PetBreedDropdownBody> {
+  final MenuController _menuController = MenuController();
+
+  @override
+  Widget build(BuildContext context) {
     final profile = ref.watch(petProfileProvider);
     final kind = profile.petType;
     final options = breedsForKind(kind);
     final current = profile.breed.isNotEmpty ? profile.breed : null;
+    final selected = options.contains(current) ? current : null;
+    final display =
+        selected ?? (profile.breed.isNotEmpty ? profile.breed : 'Select breed');
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -377,7 +487,7 @@ class _PetBreedDropdownBody extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            label,
+            widget.label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: AppColors.headline,
                   fontWeight: FontWeight.w600,
@@ -392,27 +502,83 @@ class _PetBreedDropdownBody extends ConsumerWidget {
                   ),
             )
           else
-            InputDecorator(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                filled: true,
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: options.contains(current) ? current : null,
-                  hint: const Text('Select breed'),
-                  items: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final menuW = _menuWidthFromConstraints(constraints, context);
+                final itemStyle = MenuItemButton.styleFrom(
+                  foregroundColor: AppColors.headline,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  minimumSize: Size(menuW, 48),
+                  alignment: AlignmentDirectional.centerStart,
+                );
+                return MenuAnchor(
+                  controller: _menuController,
+                  crossAxisUnconstrained: false,
+                  alignmentOffset: const Offset(0, 4),
+                  style: _onboardingAnchorMenuStyle(
+                    menuWidth: menuW,
+                    maxHeight: 280,
+                  ),
+                  menuChildren: [
                     for (final b in options)
-                      DropdownMenuItem<String>(value: b, child: Text(b)),
+                      MenuItemButton(
+                        style: itemStyle,
+                        onPressed: () {
+                          _menuController.close();
+                          ref.read(petProfileProvider.notifier).setBreed(b);
+                          _dispatchSubmit(widget.itemContext, 'breed', b);
+                        },
+                        child: Text(b),
+                      ),
                   ],
-                  onChanged: (v) {
-                    if (v == null) return;
-                    ref.read(petProfileProvider.notifier).setBreed(v);
-                    _dispatchSubmit(itemContext, 'breed', v);
+                  builder: (context, controller, child) {
+                    return InputDecorator(
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        filled: true,
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(4),
+                        onTap: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  display,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                        color: selected == null &&
+                                                profile.breed.isEmpty
+                                            ? Theme.of(context).hintColor
+                                            : AppColors.headline,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_drop_down_rounded,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
                   },
-                ),
-              ),
+                );
+              },
             ),
         ],
       ),

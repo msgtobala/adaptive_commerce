@@ -3,9 +3,9 @@ import 'package:adaptive_commerce/core/widgets/floating_pill_tab_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Shell: [AppBrandHeader] + [FloatingPillTabBar] + tab content.
-class MainShell extends StatelessWidget {
-  const MainShell({super.key, required this.navigationShell});
+/// App tab layout: [AppBrandHeader] + [FloatingPillTabBar] + tab content.
+class MainLayout extends StatelessWidget {
+  const MainLayout({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
@@ -21,7 +21,7 @@ class MainShell extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const AppBrandHeader(),
+                const AppBrandHeader(showPetProfileAction: true),
                 FloatingPillTabBar(
                   currentIndex: navigationShell.currentIndex,
                   onItemSelected: (index) => navigationShell.goBranch(
