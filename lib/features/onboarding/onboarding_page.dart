@@ -38,21 +38,22 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     final contentGenerator = FirebaseAiContentGenerator(
       catalog: catalog,
       systemInstruction: _onboardingSystemInstruction,
-      modelCreator: ({
-        required FirebaseAiContentGenerator configuration,
-        firebase_ai.Content? systemInstruction,
-        List<firebase_ai.Tool>? tools,
-        firebase_ai.ToolConfig? toolConfig,
-      }) {
-        return GeminiGenerativeModel(
-          firebaseAI.generativeModel(
-            model: FirebaseAiConfig.generativeModel,
-            systemInstruction: systemInstruction,
-            tools: tools,
-            toolConfig: toolConfig,
-          ),
-        );
-      },
+      modelCreator:
+          ({
+            required FirebaseAiContentGenerator configuration,
+            firebase_ai.Content? systemInstruction,
+            List<firebase_ai.Tool>? tools,
+            firebase_ai.ToolConfig? toolConfig,
+          }) {
+            return GeminiGenerativeModel(
+              firebaseAI.generativeModel(
+                model: FirebaseAiConfig.generativeModel,
+                systemInstruction: systemInstruction,
+                tools: tools,
+                toolConfig: toolConfig,
+              ),
+            );
+          },
     );
 
     _conversation = GenUiConversation(
@@ -115,14 +116,17 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 children: [
                   const AppBrandHeader(),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 24, 0),
                     child: Text(
                       AppStrings.onboardingTitle,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(color: Colors.black),
                     ),
                   ),
                   ValueListenableBuilder<bool>(
-                    valueListenable: _conversation.contentGenerator.isProcessing,
+                    valueListenable:
+                        _conversation.contentGenerator.isProcessing,
                     builder: (context, processing, _) {
                       if (!processing) return const SizedBox.shrink();
                       return const Padding(
