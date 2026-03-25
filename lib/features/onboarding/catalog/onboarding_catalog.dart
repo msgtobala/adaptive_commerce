@@ -448,6 +448,7 @@ class _PetGenderRadioBody extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           SegmentedButton<PetGender>(
+            multiSelectionEnabled: false,
             segments: const [
               ButtonSegment(
                 value: PetGender.male,

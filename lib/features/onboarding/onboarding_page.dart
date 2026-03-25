@@ -4,6 +4,7 @@ import 'package:adaptive_commerce/core/firebase/firebase_ai_config.dart';
 import 'package:adaptive_commerce/core/firebase/firebase_providers.dart';
 import 'package:adaptive_commerce/core/resources/app_strings.dart';
 import 'package:adaptive_commerce/core/widgets/app_brand_header.dart';
+import 'package:adaptive_commerce/features/onboarding/pet_profile_provider.dart';
 import 'package:adaptive_commerce/core/widgets/shell_prompt_bar.dart';
 import 'package:adaptive_commerce/features/onboarding/catalog/onboarding_catalog.dart';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
@@ -23,10 +24,12 @@ class OnboardingPage extends ConsumerStatefulWidget {
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   late final GenUiConversation _conversation;
   final List<String> _surfaceIds = [];
+  bool _didBootstrap = false;
 
   @override
   void initState() {
     super.initState();
+
     final catalog = onboardingCatalog;
     final firebaseAI = ref.read(firebaseAIProvider);
 
@@ -70,6 +73,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _didBootstrap) return;
+      _didBootstrap = true;
+      // Reset must run after build — not in [initState] — or Riverpod throws.
+      ref.read(petProfileProvider.notifier).reset();
       unawaited(
         _conversation.sendRequest(
           UserMessage.text(
@@ -89,6 +96,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _onPromptSend(String text) {
+    if (_conversation.contentGenerator.isProcessing.value) return;
     unawaited(_conversation.sendRequest(UserMessage.text(text)));
   }
 
@@ -114,7 +122,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     ),
                   ),
                   ValueListenableBuilder<bool>(
-                    valueListenable: _conversation.isProcessing,
+                    valueListenable: _conversation.contentGenerator.isProcessing,
                     builder: (context, processing, _) {
                       if (!processing) return const SizedBox.shrink();
                       return const Padding(
@@ -150,32 +158,29 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 }
 
-/// Guides the model through onboarding steps and custom catalog widget names.
+/// Guides the model: **one onboarding step per user turn** (stops multi-step
+/// tool loops that skipped user input).
 const String _onboardingSystemInstruction = '''
-You are a friendly pet onboarding assistant. Your job is to collect a pet profile
-in this exact order:
-1) Pet type (dog or cat) — use ONLY the catalog widget named **PetTypeDropdown**
-   as the main interactive control for this step.
-2) Pet name — use **PetNameInput**.
-3) Date of birth — use **PetDobCalendar** (user picks a date from the calendar).
-4) Breed — use **PetBreedDropdown** (options depend on dog vs cat in app state).
-5) Gender (male or female) — use **PetGenderRadio**.
-6) When all fields have been collected, show a summary using **PetProfileCard**
-   (title can summarize the profile). The card includes a Continue button in the
-   client; you still render the PetProfileCard surface so the user sees the summary.
+You are a pet onboarding assistant. Collect profile fields in this strict order:
+(1) PetTypeDropdown → (2) PetNameInput → (3) PetDobCalendar → (4) PetBreedDropdown
+→ (5) PetGenderRadio → (6) PetProfileCard summary.
 
-Rules:
-- Use the standard GenUI tools: beginRendering, surfaceUpdate, dataModelUpdate,
-  deleteSurface as appropriate. Prefer one clear surface per step so the user is
-  not overwhelmed. You may delete or replace previous step surfaces if helpful.
-- For each step, compose layouts using core catalog items (Column, Text, Card,
-  etc.) together with the single main onboarding widget for that step.
-- When the user submits a value (widget events appear as onboardingFieldSubmitted
-  with field and value in context) OR sends a free-text message, interpret their
-  answer, acknowledge briefly if needed, and show ONLY the next step’s UI.
-- If chat text answers the current question (e.g. "dog", "Max", "male"), treat it
-  as the answer and advance.
-- Widget names must match exactly: PetTypeDropdown, PetNameInput, PetDobCalendar,
-  PetBreedDropdown, PetGenderRadio, PetProfileCard.
-- Be concise in any optional Text components; focus on the interactive widgets.
+CRITICAL — ONE STEP PER ASSISTANT TURN:
+- After each user message (typed chat OR UI event `onboardingFieldSubmitted`),
+  you may build UI for **exactly one** step only.
+- Use beginRendering, surfaceUpdate, deleteSurface, and dataModelUpdate only to
+  produce **one** surface that contains **one** main onboarding widget for the
+  current step (names: PetTypeDropdown, PetNameInput, PetDobCalendar,
+  PetBreedDropdown, PetGenderRadio, or PetProfileCard).
+- In the **same** turn, after that single step’s surface is ready, you MUST call
+  **provideFinalOutput** with a short string (e.g. what you asked or a one-line
+  confirmation). Do not start the next step in this turn.
+- Never emit multiple steps (e.g. pet type and name) in one turn. Wait for the
+  next message before the following step.
+- If the user answers via chat text (e.g. "dog", "Max"), treat it as input for
+  the current step, then show only the **next** step in your **next** turn.
+
+Layout: combine Column/Text/Card with the one main widget. Widget names must match
+exactly. PetProfileCard shows client-side Continue; still render that surface when
+all fields are complete. Be brief in helper Text.
 ''';
