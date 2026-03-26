@@ -26,6 +26,12 @@ final Catalog foodCatalog = Catalog(
   catalogId: 'a2ui.org:standard_catalog_0_8_0',
 );
 
+/// Outer padding for Food GenUI cards (projector / large screens).
+const EdgeInsets _foodCardPadding = EdgeInsets.fromLTRB(20, 20, 20, 18);
+
+/// Inner padding for nested panels (e.g. per-product blocks).
+const EdgeInsets _foodPanelPadding = EdgeInsets.all(16);
+
 // --- Shared schemas ---
 
 final Schema _foodProductEntrySchema = S.object(
@@ -257,84 +263,92 @@ class _FoodProductResultsBody extends StatelessWidget {
         side: const BorderSide(color: AppColors.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: _foodCardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 color: AppColors.headline,
                 fontWeight: FontWeight.w600,
+                height: 1.2,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ...products.map((p) {
               final ingredients = _stringList(p['ingredients']);
               return Padding(
-                padding: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.only(bottom: 18),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: AppColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.divider),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: _foodPanelPadding,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           _str(p, 'name', 'Product'),
-                          style: theme.textTheme.titleSmall?.copyWith(
+                          style: theme.textTheme.titleMedium?.copyWith(
                             color: AppColors.headline,
                             fontWeight: FontWeight.w600,
+                            height: 1.25,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
                           '${_str(p, 'priceDisplay', '—')} · ${_str(p, 'rating', '—')}',
-                          style: theme.textTheme.bodySmall?.copyWith(
+                          style: theme.textTheme.bodyLarge?.copyWith(
                             color: AppColors.deepBrown,
+                            height: 1.35,
                           ),
                         ),
                         if (_optionalStr(p['retailer']) != null) ...[
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 6),
                           Text(
                             _str(p, 'retailer', ''),
-                            style: theme.textTheme.labelSmall?.copyWith(
+                            style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.mutedText,
+                              height: 1.3,
                             ),
                           ),
                         ],
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Text(
                           _str(p, 'description', ''),
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.textTheme.bodyLarge?.copyWith(
                             color: AppColors.deepBrown,
+                            height: 1.45,
                           ),
                         ),
                         if (ingredients.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           Text(
                             'Ingredients',
-                            style: theme.textTheme.labelLarge?.copyWith(
+                            style: theme.textTheme.titleSmall?.copyWith(
                               color: AppColors.headline,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8),
                           Text(
                             ingredients.join(', '),
-                            style: theme.textTheme.bodySmall?.copyWith(
+                            style: theme.textTheme.bodyLarge?.copyWith(
                               color: AppColors.bodySecondary,
+                              height: 1.45,
                             ),
                           ),
                         ],
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         SelectableText(
                           _str(p, 'sourceUrl', ''),
-                          style: theme.textTheme.bodySmall?.copyWith(
+                          style: theme.textTheme.bodyLarge?.copyWith(
                             color: AppColors.primary,
+                            height: 1.35,
                           ),
                         ),
                       ],
@@ -376,18 +390,19 @@ class _ProductComparisonTableBody extends StatelessWidget {
         side: const BorderSide(color: AppColors.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: _foodCardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 color: AppColors.headline,
                 fontWeight: FontWeight.w600,
+                height: 1.2,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Table(
@@ -401,12 +416,13 @@ class _ProductComparisonTableBody extends StatelessWidget {
                     children: columnLabels
                         .map(
                           (label) => Padding(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(12),
                             child: Text(
                               label,
-                              style: theme.textTheme.labelLarge?.copyWith(
+                              style: theme.textTheme.titleSmall?.copyWith(
                                 color: AppColors.headline,
                                 fontWeight: FontWeight.w600,
+                                height: 1.25,
                               ),
                             ),
                           ),
@@ -427,11 +443,12 @@ class _ProductComparisonTableBody extends StatelessWidget {
                       children: cells
                           .map(
                             (c) => Padding(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(12),
                               child: Text(
                                 c,
-                                style: theme.textTheme.bodySmall?.copyWith(
+                                style: theme.textTheme.bodyLarge?.copyWith(
                                   color: AppColors.deepBrown,
+                                  height: 1.35,
                                 ),
                               ),
                             ),
@@ -443,29 +460,32 @@ class _ProductComparisonTableBody extends StatelessWidget {
               ),
             ),
             if (footnote != null) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
               Text(
                 footnote!,
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.mutedText,
+                  height: 1.4,
                 ),
               ),
             ],
             if (sources.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
                 'Sources',
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColors.headline,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               ...sources.map(
                 (u) => Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: 6),
                   child: SelectableText(
                     u,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.primary,
+                      height: 1.35,
                     ),
                   ),
                 ),
@@ -504,28 +524,30 @@ class _FeedingQuantityGuideBody extends StatelessWidget {
         side: const BorderSide(color: AppColors.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: _foodCardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               'Feeding guide: $productName',
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 color: AppColors.headline,
                 fontWeight: FontWeight.w600,
+                height: 1.25,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             Text(
               summary,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 color: AppColors.deepBrown,
+                height: 1.45,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             ...rows.map((r) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -533,9 +555,10 @@ class _FeedingQuantityGuideBody extends StatelessWidget {
                       flex: 2,
                       child: Text(
                         _str(r, 'band', '—'),
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: theme.textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.headline,
+                          height: 1.4,
                         ),
                       ),
                     ),
@@ -543,8 +566,9 @@ class _FeedingQuantityGuideBody extends StatelessWidget {
                       flex: 3,
                       child: Text(
                         _str(r, 'amount', '—'),
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: theme.textTheme.bodyLarge?.copyWith(
                           color: AppColors.deepBrown,
+                          height: 1.4,
                         ),
                       ),
                     ),
@@ -553,20 +577,22 @@ class _FeedingQuantityGuideBody extends StatelessWidget {
               );
             }),
             if (caution != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
                 caution!,
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.warning,
+                  height: 1.4,
                 ),
               ),
             ],
             if (sourceUrl != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               SelectableText(
                 sourceUrl!,
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.primary,
+                  height: 1.35,
                 ),
               ),
             ],
@@ -603,55 +629,61 @@ class _PetFoodSafetyAnswerBody extends StatelessWidget {
         side: const BorderSide(color: AppColors.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: _foodCardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               questionSummary,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 color: AppColors.headline,
                 fontWeight: FontWeight.w600,
+                height: 1.25,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
             Chip(
               label: Text(
                 safeLevel.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
+                style: theme.textTheme.labelLarge?.copyWith(
                   color: AppColors.onPrimary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               backgroundColor: AppColors.primary,
               side: BorderSide.none,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Text(
               explanation,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 color: AppColors.deepBrown,
+                height: 1.45,
               ),
             ),
             if (bullets.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
               ...bullets.map(
                 (b) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         '• ',
-                        style: theme.textTheme.bodyMedium?.copyWith(
+                        style: theme.textTheme.bodyLarge?.copyWith(
                           color: AppColors.primary,
+                          height: 1.4,
                         ),
                       ),
                       Expanded(
                         child: Text(
                           b,
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.textTheme.bodyLarge?.copyWith(
                             color: AppColors.deepBrown,
+                            height: 1.4,
                           ),
                         ),
                       ),
@@ -661,20 +693,22 @@ class _PetFoodSafetyAnswerBody extends StatelessWidget {
               ),
             ],
             if (sources.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
               Text(
                 'Sources',
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColors.headline,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               ...sources.map(
                 (u) => Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: 6),
                   child: SelectableText(
                     u,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.primary,
+                      height: 1.35,
                     ),
                   ),
                 ),
@@ -711,70 +745,75 @@ class _PetHabitTipsBody extends StatelessWidget {
         side: const BorderSide(color: AppColors.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: _foodCardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 color: AppColors.headline,
                 fontWeight: FontWeight.w600,
+                height: 1.2,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               'Do',
-              style: theme.textTheme.labelLarge?.copyWith(
+              style: theme.textTheme.titleSmall?.copyWith(
                 color: AppColors.success,
                 fontWeight: FontWeight.w600,
               ),
             ),
             ...dos.map(
               (t) => Padding(
-                padding: const EdgeInsets.only(left: 8, top: 4),
+                padding: const EdgeInsets.only(left: 8, top: 6),
                 child: Text(
                   '• $t',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodyLarge?.copyWith(
                     color: AppColors.deepBrown,
+                    height: 1.4,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               "Don't",
-              style: theme.textTheme.labelLarge?.copyWith(
+              style: theme.textTheme.titleSmall?.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
               ),
             ),
             ...donts.map(
               (t) => Padding(
-                padding: const EdgeInsets.only(left: 8, top: 4),
+                padding: const EdgeInsets.only(left: 8, top: 6),
                 child: Text(
                   '• $t',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodyLarge?.copyWith(
                     color: AppColors.deepBrown,
+                    height: 1.4,
                   ),
                 ),
               ),
             ),
             if (sources.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               Text(
                 'Sources',
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColors.headline,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               ...sources.map(
                 (u) => Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: 6),
                   child: SelectableText(
                     u,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.primary,
+                      height: 1.35,
                     ),
                   ),
                 ),
@@ -817,62 +856,69 @@ class _PetTopicAdviceBody extends StatelessWidget {
         side: const BorderSide(color: AppColors.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: _foodCardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 10,
+              runSpacing: 10,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleLarge?.copyWith(
                     color: AppColors.headline,
                     fontWeight: FontWeight.w600,
+                    height: 1.2,
                   ),
                 ),
                 Chip(
                   label: Text(
                     topic,
-                    style: theme.textTheme.labelSmall?.copyWith(
+                    style: theme.textTheme.labelLarge?.copyWith(
                       color: AppColors.onPrimary,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.15,
                     ),
                   ),
                   backgroundColor: AppColors.primary,
                   side: BorderSide.none,
-                  visualDensity: VisualDensity.compact,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Text(
               summary,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 color: AppColors.deepBrown,
+                height: 1.4,
               ),
             ),
             if (bullets.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
               ...bullets.map(
                 (b) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         '• ',
-                        style: theme.textTheme.bodyMedium?.copyWith(
+                        style: theme.textTheme.bodyLarge?.copyWith(
                           color: AppColors.primary,
+                          height: 1.4,
                         ),
                       ),
                       Expanded(
                         child: Text(
                           b,
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.textTheme.bodyLarge?.copyWith(
                             color: AppColors.deepBrown,
+                            height: 1.4,
                           ),
                         ),
                       ),
@@ -882,62 +928,66 @@ class _PetTopicAdviceBody extends StatelessWidget {
               ),
             ],
             if (dos.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Text(
                 'Do',
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColors.success,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               ...dos.map(
                 (t) => Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 4),
+                  padding: const EdgeInsets.only(left: 8, top: 6),
                   child: Text(
                     '• $t',
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.deepBrown,
+                      height: 1.4,
                     ),
                   ),
                 ),
               ),
             ],
             if (donts.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Text(
                 "Don't",
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColors.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               ...donts.map(
                 (t) => Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 4),
+                  padding: const EdgeInsets.only(left: 8, top: 6),
                   child: Text(
                     '• $t',
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.deepBrown,
+                      height: 1.4,
                     ),
                   ),
                 ),
               ),
             ],
             if (sources.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               Text(
                 'Sources',
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColors.headline,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               ...sources.map(
                 (u) => Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: 6),
                   child: SelectableText(
                     u,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.primary,
+                      height: 1.35,
                     ),
                   ),
                 ),
