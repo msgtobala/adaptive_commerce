@@ -7,6 +7,7 @@ import 'package:adaptive_commerce/features/food/pet_profile_prompt.dart';
 import 'package:adaptive_commerce/features/onboarding/pet_profile.dart';
 import 'package:adaptive_commerce/features/onboarding/pet_profile_provider.dart';
 import 'package:adaptive_commerce/features/vet/catalog/vet_catalog.dart';
+import 'package:adaptive_commerce/features/vet/tools/vet_places_tool.dart';
 import 'package:adaptive_commerce/theme/styles/app_colors.dart';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter/material.dart';
@@ -40,22 +41,25 @@ class _VetPageState extends ConsumerState<VetPage> {
     final contentGenerator = FirebaseAiContentGenerator(
       catalog: catalog,
       systemInstruction: _vetSystemInstruction,
-      // modelCreator:
-      //     ({
-      //       required FirebaseAiContentGenerator configuration,
-      //       firebase_ai.Content? systemInstruction,
-      //       List<firebase_ai.Tool>? tools,
-      //       firebase_ai.ToolConfig? toolConfig,
-      //     }) {
-      //       return GeminiGenerativeModel(
-      //         firebaseAI.generativeModel(
-      //           model: FirebaseAiConfig.generativeModel,
-      //           systemInstruction: systemInstruction,
-      //           tools: tools,
-      //           toolConfig: toolConfig,
-      //         ),
-      //       );
-      //     },
+      additionalTools: [
+        createVetPlacesTool(),
+      ],
+      modelCreator:
+          ({
+            required FirebaseAiContentGenerator configuration,
+            firebase_ai.Content? systemInstruction,
+            List<firebase_ai.Tool>? tools,
+            firebase_ai.ToolConfig? toolConfig,
+          }) {
+            return GeminiGenerativeModel(
+              firebaseAI.generativeModel(
+                model: FirebaseAiConfig.generativeModel,
+                systemInstruction: systemInstruction,
+                tools: tools,
+                toolConfig: toolConfig,
+              ),
+            );
+          },
     );
 
     _conversation = GenUiConversation(
@@ -228,6 +232,12 @@ Widget field requirements:
 - shortAnswer: 1-2 sentences explaining you cannot guarantee exact distance without live data.
 - tips: 2-5 tips (call ahead, ask about availability, bring records).
 - urgentSigns: 3-5 urgent signs where you should go urgently.
+
+**search_nearest_vets** (custom tool) — MUST be called for VetNearestVetFinder.
+- Pass `area_query` derived from the user's request + pet profile (when relevant).
+- The tool returns `places[]`; you MUST copy those fields into `VetNearestVetFinder.places[]`.
+- If the tool returns an error or an empty `places[]`, you MUST set `VetNearestVetFinder.places` to an empty list.
+  In that case, rely on `mapSearchUrl` fallback only (do NOT fabricate clinics).
 
 **VetTopicAdvice**
 - title: "Veterinary"

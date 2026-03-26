@@ -529,6 +529,9 @@ class _VetNearestVetFinderBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final effectiveMapSearchUrl = mapSearchUrl.isNotEmpty
+        ? mapSearchUrl
+        : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent('veterinary clinic $query')}';
     return Card(
       elevation: 0,
       color: AppColors.surface,
@@ -672,7 +675,7 @@ class _VetNearestVetFinderBody extends StatelessWidget {
               const SizedBox(height: 8),
               Builder(
                 builder: (context) {
-                  final uri = Uri.tryParse(mapSearchUrl);
+                  final uri = Uri.tryParse(effectiveMapSearchUrl);
                   final canOpen = uri != null && uri.hasScheme;
                   return InkWell(
                     onTap: !canOpen
@@ -691,7 +694,7 @@ class _VetNearestVetFinderBody extends StatelessWidget {
                             }
                           },
                     child: Text(
-                      mapSearchUrl,
+                      effectiveMapSearchUrl,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: AppColors.primary,
                         height: 1.35,
