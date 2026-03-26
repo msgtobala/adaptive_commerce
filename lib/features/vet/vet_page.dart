@@ -227,6 +227,8 @@ Widget field requirements:
   - placeName
   - address
   - phone (can be empty string if unknown)
+  - rating (number; optional if unknown)
+  - ratingCount (integer; optional if unknown)
   - mapUrl and/or websiteUrl (prefer mapUrl when possible, must be https)
 - mapSearchUrl: optional fallback; can be a valid `https://` Google Maps search URL.
 - shortAnswer: 1-2 sentences explaining you cannot guarantee exact distance without live data.

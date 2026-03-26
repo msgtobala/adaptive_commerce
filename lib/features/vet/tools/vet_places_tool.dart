@@ -73,7 +73,8 @@ DynamicAiTool<JsonMap> createVetPlacesTool() {
           final placeId = r['place_id']?.toString();
           final placeName = r['name']?.toString() ?? '';
           final address = r['formatted_address']?.toString() ?? '';
-
+          final rating = r['rating'];
+          final ratingCount = r['user_ratings_total'];
           // Google Maps link that reliably opens the place by place_id.
           final mapUrl = placeId == null || placeId.isEmpty
               ? ''
@@ -111,6 +112,8 @@ DynamicAiTool<JsonMap> createVetPlacesTool() {
             'placeName': placeName,
             'address': address,
             'phone': phone,
+            'rating': rating is num ? rating.toDouble() : null,
+            'ratingCount': ratingCount is num ? ratingCount.toInt() : null,
             'mapUrl': mapUrl,
             'websiteUrl': website,
           });

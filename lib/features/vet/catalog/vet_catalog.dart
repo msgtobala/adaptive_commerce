@@ -82,6 +82,8 @@ final Schema _vetNearestVetFinderSchema = S.object(
           'placeName': S.string(),
           'address': S.string(),
           'phone': S.string(),
+          'rating': S.number(),
+          'ratingCount': S.integer(),
           'mapUrl': S.string(),
           'websiteUrl': S.string(),
         },
@@ -574,6 +576,8 @@ class _VetNearestVetFinderBody extends StatelessWidget {
                 final placeName = _str(p, 'placeName', '').trim();
                 final address = _str(p, 'address', '').trim();
                 final phone = _str(p, 'phone', '').trim();
+                final rating = p['rating'];
+                final ratingCount = p['ratingCount'];
                 final mapUrl = _str(p, 'mapUrl', '').trim();
                 final websiteUrl = _str(p, 'websiteUrl', '').trim();
                 final linkToOpen = mapUrl.isNotEmpty ? mapUrl : websiteUrl;
@@ -589,10 +593,15 @@ class _VetNearestVetFinderBody extends StatelessWidget {
                       border: Border.all(color: AppColors.divider),
                     ),
                     child: Padding(
-                      padding: _vetPanelPadding,
+                      padding: const EdgeInsets.all(0),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          Padding(
+                            padding: _vetPanelPadding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                           Text(
                             placeName.isNotEmpty ? placeName : 'Clinic',
                             style: theme.textTheme.bodyLarge?.copyWith(
@@ -607,6 +616,18 @@ class _VetNearestVetFinderBody extends StatelessWidget {
                               address,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: AppColors.deepBrown,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                          if (rating != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              ratingCount is num
+                                  ? 'Rating: ${rating.toString()} (${ratingCount.toString()} reviews)'
+                                  : 'Rating: ${rating.toString()}',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: AppColors.bodySecondary,
                                 height: 1.35,
                               ),
                             ),
@@ -658,6 +679,9 @@ class _VetNearestVetFinderBody extends StatelessWidget {
                               },
                             ),
                           ],
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
