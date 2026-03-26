@@ -22,9 +22,7 @@ final Catalog onboardingCatalog = CoreCatalogItems.asCatalog().copyWith([
 
 final Schema _petTypeDropdownSchema = S.object(
   description: 'Dropdown to choose dog or cat.',
-  properties: {
-    'label': S.string(description: 'Heading label for the step.'),
-  },
+  properties: {'label': S.string(description: 'Heading label for the step.')},
 );
 
 final Schema _petNameInputSchema = S.object(
@@ -37,31 +35,23 @@ final Schema _petNameInputSchema = S.object(
 
 final Schema _petDobCalendarSchema = S.object(
   description: 'Opens a date picker for pet date of birth.',
-  properties: {
-    'label': S.string(description: 'Label for the step.'),
-  },
+  properties: {'label': S.string(description: 'Label for the step.')},
 );
 
 final Schema _petBreedDropdownSchema = S.object(
   description: 'Breed dropdown; options depend on pet type from app state.',
-  properties: {
-    'label': S.string(description: 'Label above the dropdown.'),
-  },
+  properties: {'label': S.string(description: 'Label above the dropdown.')},
 );
 
 final Schema _petGenderRadioSchema = S.object(
   description: 'Male / female selection.',
-  properties: {
-    'label': S.string(description: 'Label for the step.'),
-  },
+  properties: {'label': S.string(description: 'Label for the step.')},
 );
 
 final Schema _petProfileCardSchema = S.object(
   description:
       'Summary card with a Continue button. Profile text comes from app state.',
-  properties: {
-    'title': S.string(description: 'Card title.'),
-  },
+  properties: {'title': S.string(description: 'Card title.')},
 );
 
 // --- Catalog items ---
@@ -73,10 +63,7 @@ final CatalogItem petTypeDropdown = CatalogItem(
   widgetBuilder: (itemContext) {
     final data = itemContext.data as JsonMap;
     final label = (data['label'] as String?) ?? 'Pet type';
-    return _PetTypeDropdownBody(
-      label: label,
-      itemContext: itemContext,
-    );
+    return _PetTypeDropdownBody(label: label, itemContext: itemContext);
   },
 );
 
@@ -103,10 +90,7 @@ final CatalogItem petDobCalendar = CatalogItem(
   widgetBuilder: (itemContext) {
     final data = itemContext.data as JsonMap;
     final label = (data['label'] as String?) ?? 'Date of birth';
-    return _PetDobCalendarBody(
-      label: label,
-      itemContext: itemContext,
-    );
+    return _PetDobCalendarBody(label: label, itemContext: itemContext);
   },
 );
 
@@ -117,10 +101,7 @@ final CatalogItem petBreedDropdown = CatalogItem(
   widgetBuilder: (itemContext) {
     final data = itemContext.data as JsonMap;
     final label = (data['label'] as String?) ?? 'Breed';
-    return _PetBreedDropdownBody(
-      label: label,
-      itemContext: itemContext,
-    );
+    return _PetBreedDropdownBody(label: label, itemContext: itemContext);
   },
 );
 
@@ -131,10 +112,7 @@ final CatalogItem petGenderRadio = CatalogItem(
   widgetBuilder: (itemContext) {
     final data = itemContext.data as JsonMap;
     final label = (data['label'] as String?) ?? 'Gender';
-    return _PetGenderRadioBody(
-      label: label,
-      itemContext: itemContext,
-    );
+    return _PetGenderRadioBody(label: label, itemContext: itemContext);
   },
 );
 
@@ -161,10 +139,7 @@ void _dispatchSubmit(
       surfaceId: itemContext.surfaceId,
       name: 'onboardingFieldSubmitted',
       sourceComponentId: itemContext.id,
-      context: {
-        'field': field,
-        'value': value,
-      },
+      context: {'field': field, 'value': value},
     ),
   );
 }
@@ -192,13 +167,14 @@ MenuStyle _onboardingAnchorMenuStyle({
         side: const BorderSide(color: AppColors.divider),
       ),
     ),
-    padding: const WidgetStatePropertyAll(
-      EdgeInsets.symmetric(vertical: 4),
-    ),
+    padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 4)),
   );
 }
 
-double _menuWidthFromConstraints(BoxConstraints constraints, BuildContext context) {
+double _menuWidthFromConstraints(
+  BoxConstraints constraints,
+  BuildContext context,
+) {
   if (constraints.hasBoundedWidth) {
     return constraints.maxWidth;
   }
@@ -206,10 +182,7 @@ double _menuWidthFromConstraints(BoxConstraints constraints, BuildContext contex
 }
 
 class _PetTypeDropdownBody extends ConsumerStatefulWidget {
-  const _PetTypeDropdownBody({
-    required this.label,
-    required this.itemContext,
-  });
+  const _PetTypeDropdownBody({required this.label, required this.itemContext});
 
   final String label;
   final CatalogItemContext itemContext;
@@ -237,9 +210,9 @@ class _PetTypeDropdownBodyState extends ConsumerState<_PetTypeDropdownBody> {
           Text(
             widget.label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.headline,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.headline,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           LayoutBuilder(
@@ -247,7 +220,10 @@ class _PetTypeDropdownBodyState extends ConsumerState<_PetTypeDropdownBody> {
               final menuW = _menuWidthFromConstraints(constraints, context);
               final itemStyle = MenuItemButton.styleFrom(
                 foregroundColor: AppColors.headline,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 minimumSize: Size(menuW, 48),
                 alignment: AlignmentDirectional.centerStart,
               );
@@ -261,7 +237,9 @@ class _PetTypeDropdownBodyState extends ConsumerState<_PetTypeDropdownBody> {
                     style: itemStyle,
                     onPressed: () {
                       _menuController.close();
-                      ref.read(petProfileProvider.notifier).setPetType(PetKind.dog);
+                      ref
+                          .read(petProfileProvider.notifier)
+                          .setPetType(PetKind.dog);
                       _dispatchSubmit(widget.itemContext, 'petType', 'dog');
                     },
                     child: const Text('Dog'),
@@ -270,7 +248,9 @@ class _PetTypeDropdownBodyState extends ConsumerState<_PetTypeDropdownBody> {
                     style: itemStyle,
                     onPressed: () {
                       _menuController.close();
-                      ref.read(petProfileProvider.notifier).setPetType(PetKind.cat);
+                      ref
+                          .read(petProfileProvider.notifier)
+                          .setPetType(PetKind.cat);
                       _dispatchSubmit(widget.itemContext, 'petType', 'cat');
                     },
                     child: const Text('Cat'),
@@ -298,7 +278,8 @@ class _PetTypeDropdownBodyState extends ConsumerState<_PetTypeDropdownBody> {
                             Expanded(
                               child: Text(
                                 display,
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(
                                       color: profile.petType == null
                                           ? Theme.of(context).hintColor
                                           : AppColors.headline,
@@ -374,9 +355,9 @@ class _PetNameInputBodyState extends ConsumerState<_PetNameInputBody> {
           Text(
             widget.label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.headline,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.headline,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -390,10 +371,7 @@ class _PetNameInputBodyState extends ConsumerState<_PetNameInputBody> {
             onSubmitted: (_) => _submit(),
           ),
           const SizedBox(height: 8),
-          FilledButton(
-            onPressed: _submit,
-            child: const Text('Next'),
-          ),
+          FilledButton(onPressed: _submit, child: const Text('Next')),
         ],
       ),
     );
@@ -401,10 +379,7 @@ class _PetNameInputBodyState extends ConsumerState<_PetNameInputBody> {
 }
 
 class _PetDobCalendarBody extends ConsumerWidget {
-  const _PetDobCalendarBody({
-    required this.label,
-    required this.itemContext,
-  });
+  const _PetDobCalendarBody({required this.label, required this.itemContext});
 
   final String label;
   final CatalogItemContext itemContext;
@@ -413,7 +388,9 @@ class _PetDobCalendarBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(petProfileProvider);
     final dob = profile.dateOfBirth;
-    final text = dob != null ? MaterialLocalizations.of(context).formatFullDate(dob) : 'Choose date';
+    final text = dob != null
+        ? MaterialLocalizations.of(context).formatFullDate(dob)
+        : 'Choose date';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -423,9 +400,9 @@ class _PetDobCalendarBody extends ConsumerWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.headline,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.headline,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
@@ -455,10 +432,7 @@ class _PetDobCalendarBody extends ConsumerWidget {
 }
 
 class _PetBreedDropdownBody extends ConsumerStatefulWidget {
-  const _PetBreedDropdownBody({
-    required this.label,
-    required this.itemContext,
-  });
+  const _PetBreedDropdownBody({required this.label, required this.itemContext});
 
   final String label;
   final CatalogItemContext itemContext;
@@ -489,17 +463,17 @@ class _PetBreedDropdownBodyState extends ConsumerState<_PetBreedDropdownBody> {
           Text(
             widget.label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.headline,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.headline,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           if (kind == null)
             Text(
               'Select pet type first.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.deepBrown,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.deepBrown),
             )
           else
             LayoutBuilder(
@@ -507,7 +481,10 @@ class _PetBreedDropdownBodyState extends ConsumerState<_PetBreedDropdownBody> {
                 final menuW = _menuWidthFromConstraints(constraints, context);
                 final itemStyle = MenuItemButton.styleFrom(
                   foregroundColor: AppColors.headline,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   minimumSize: Size(menuW, 48),
                   alignment: AlignmentDirectional.centerStart,
                 );
@@ -553,11 +530,10 @@ class _PetBreedDropdownBodyState extends ConsumerState<_PetBreedDropdownBody> {
                               Expanded(
                                 child: Text(
                                   display,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
+                                  style: Theme.of(context).textTheme.bodyLarge
                                       ?.copyWith(
-                                        color: selected == null &&
+                                        color:
+                                            selected == null &&
                                                 profile.breed.isEmpty
                                             ? Theme.of(context).hintColor
                                             : AppColors.headline,
@@ -587,10 +563,7 @@ class _PetBreedDropdownBodyState extends ConsumerState<_PetBreedDropdownBody> {
 }
 
 class _PetGenderRadioBody extends ConsumerWidget {
-  const _PetGenderRadioBody({
-    required this.label,
-    required this.itemContext,
-  });
+  const _PetGenderRadioBody({required this.label, required this.itemContext});
 
   final String label;
   final CatalogItemContext itemContext;
@@ -608,9 +581,9 @@ class _PetGenderRadioBody extends ConsumerWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.headline,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.headline,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           SegmentedButton<PetGender>(
@@ -647,9 +620,7 @@ class _PetGenderRadioBody extends ConsumerWidget {
 }
 
 class _PetProfileCardBody extends ConsumerWidget {
-  const _PetProfileCardBody({
-    required this.title,
-  });
+  const _PetProfileCardBody({required this.title});
 
   final String title;
 
@@ -658,6 +629,9 @@ class _PetProfileCardBody extends ConsumerWidget {
     final p = ref.watch(petProfileProvider);
     final dobText = p.dateOfBirth != null
         ? MaterialLocalizations.of(context).formatFullDate(p.dateOfBirth!)
+        : '—';
+    final ageText = p.dateOfBirth != null
+        ? formatAgeInMonthsLabel(p.dateOfBirth!)
         : '—';
 
     return Card(
@@ -675,14 +649,15 @@ class _PetProfileCardBody extends ConsumerWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.headline,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: AppColors.headline,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             _line('Type', p.petType?.name ?? '—'),
             _line('Name', p.name.isNotEmpty ? p.name : '—'),
             _line('Date of birth', dobText),
+            _line('Age', ageText),
             _line('Breed', p.breed.isNotEmpty ? p.breed : '—'),
             _line(
               'Gender',

@@ -49,6 +49,24 @@ class PetProfile {
   }
 }
 
+/// Calendar months from [birth] to [asOf] (defaults to today). Non-negative.
+int petAgeInMonths(DateTime birth, {DateTime? asOf}) {
+  final end = _dateOnly(asOf ?? DateTime.now());
+  final start = _dateOnly(birth);
+  if (end.isBefore(start)) return 0;
+  var months = (end.year - start.year) * 12 + end.month - start.month;
+  if (end.day < start.day) months--;
+  return months < 0 ? 0 : months;
+}
+
+DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+/// User-facing age string, e.g. `"1 month"` / `"14 months"`.
+String formatAgeInMonthsLabel(DateTime birth, {DateTime? asOf}) {
+  final m = petAgeInMonths(birth, asOf: asOf);
+  return m == 1 ? '1 month' : '$m months';
+}
+
 /// Short breed labels for dropdowns (per [PetKind]).
 List<String> dogBreeds = const [
   'Maltipoo',
