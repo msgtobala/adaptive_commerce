@@ -37,4 +37,9 @@ abstract final class AppStrings {
   static const String routeNotFoundBody =
       'This link is invalid or the page was removed.';
   static const String routeNotFoundBack = 'Back to app';
+
+  /// Checkout (mock)
+  static const String checkoutTitle = 'Checkout';
+  static const String checkoutOrderPlaced = 'Order placed';
+  static const String checkoutBack = 'Back';
 }

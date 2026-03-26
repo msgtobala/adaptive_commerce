@@ -8,6 +8,9 @@ abstract final class FirestorePaths {
   static const String productsCollection = 'products';
 
   static String product(String productId) => '$productsCollection/$productId';
+
+  /// Toy catalog documents (see Toys tab + `fetch_toys_from_firestore` tool).
+  static const String toysCollection = 'toys';
 }
 
 /// Canonical Cloud Storage object prefixes.

@@ -1,6 +1,7 @@
 import 'package:adaptive_commerce/core/resources/app_strings.dart';
 import 'package:adaptive_commerce/core/widgets/app_brand_header.dart';
 import 'package:adaptive_commerce/features/food/food_page.dart';
+import 'package:adaptive_commerce/features/toys/checkout_page.dart';
 import 'package:adaptive_commerce/features/toys/toys_page.dart';
 import 'package:adaptive_commerce/features/onboarding/onboarding_page.dart';
 import 'package:adaptive_commerce/layout/main_layout.dart';
@@ -22,6 +23,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoute.onboarding.path,
         name: AppRoute.onboarding.name,
         builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: AppRoute.checkout.path,
+        name: AppRoute.checkout.name,
+        builder: (context, state) {
+          final q = state.uri.queryParameters;
+          return CheckoutPage(
+            productName: q['name'] ?? '',
+            price: q['price'] ?? '',
+            seller: q['seller'] ?? '',
+            productUrl: q['url'] ?? '',
+          );
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -99,10 +113,8 @@ class RouterErrorPage extends StatelessWidget {
                         const SizedBox(height: 12),
                         SelectableText(
                           state.uri.toString(),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.mutedText,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.mutedText),
                         ),
                       ],
                       const SizedBox(height: 24),
