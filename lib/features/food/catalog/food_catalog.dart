@@ -2,6 +2,7 @@ import 'package:adaptive_commerce/theme/styles/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Slim core + Food-tab [CatalogItem]s (strict schemas).
 ///
@@ -344,12 +345,38 @@ class _FoodProductResultsBody extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        SelectableText(
-                          _str(p, 'sourceUrl', ''),
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: AppColors.primary,
-                            height: 1.35,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            final sourceUrl = _str(p, 'sourceUrl', '').trim();
+                            if (sourceUrl.isEmpty) return const SizedBox.shrink();
+                            final uri = Uri.tryParse(sourceUrl);
+                            final canOpen = uri != null && uri.hasScheme;
+                            return InkWell(
+                              onTap: !canOpen
+                                  ? null
+                                  : () async {
+                                      final ok = await launchUrl(
+                                        uri,
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                      if (!ok && context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Could not open link'),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              child: SelectableText(
+                                sourceUrl,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: AppColors.primary,
+                                  height: 1.35,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

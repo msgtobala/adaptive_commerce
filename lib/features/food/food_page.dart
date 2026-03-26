@@ -6,6 +6,7 @@ import 'package:adaptive_commerce/core/resources/app_strings.dart';
 import 'package:adaptive_commerce/core/widgets/shell_prompt_bar.dart';
 import 'package:adaptive_commerce/features/food/catalog/food_catalog.dart';
 import 'package:adaptive_commerce/features/food/pet_profile_prompt.dart';
+import 'package:adaptive_commerce/features/food/tools/pet_food_search_tool.dart';
 import 'package:adaptive_commerce/features/onboarding/pet_profile_provider.dart';
 import 'package:adaptive_commerce/theme/styles/app_colors.dart';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
@@ -14,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 
-/// Food assistant: GenUI + Firebase AI (GenUI function tools only).
+/// Food assistant: GenUI + Firebase AI (GenUI tools + optional web search tool).
 class FoodPage extends ConsumerStatefulWidget {
   const FoodPage({super.key});
 
@@ -39,6 +40,9 @@ class _FoodPageState extends ConsumerState<FoodPage> {
     final contentGenerator = FirebaseAiContentGenerator(
       catalog: catalog,
       systemInstruction: _foodSystemInstruction,
+      additionalTools: [
+        createPetFoodHardcodedSearchTool(),
+      ],
       modelCreator:
           ({
             required FirebaseAiContentGenerator configuration,
@@ -174,18 +178,38 @@ You are Happy Paws’ Food assistant. The user message always includes a
 breed, gender) for every answer.
 
 **Real shopping links (critical)** — Users expect buyable, real retailer pages, not demos.
-- Every **sourceUrl** (and entries in **sources[]** when used) MUST be a valid **https://** URL
-  on a real pet-food retailer the user can open in a browser.
-- **Prefer India-friendly stores** when recommending products, for example:
-  **amazon.in**, **supertails.com**, **thepetproject.com**, **www.royalcanin.com** (paths under `/in/…` when relevant),
-  and similarly trustworthy national pet chains or official brand sites.
-- **Never** use placeholder hosts: no **example.com**, **example.net**, **localhost**, or invented
-  “example-pet-brand” style domains. If you cannot name a specific product URL you are confident exists,
-  use a **real** category or search URL on one of the retailers above (e.g. site search for
-  “puppy food small breed” on that domain) rather than a fake product page.
-- **retailer**: set to the human-readable store name (e.g. `Supertails`, `Amazon.in`, `Royal Canin`).
+- Every **sourceUrl** (and entries in **sources[]** when used) MUST be a valid **https://** URL.
+- **CRITICAL RULE FOR SEARCH URLS:** URLs starting with `https://vertexaisearch.cloud.google.com/` ARE valid and safe. They are official tracking redirects to real pet-food retailers. You MUST accept them and use them exactly as provided. Do NOT treat them as placeholders and do NOT reject them.
+- When generating your own links, **prefer India-friendly stores** (e.g., amazon.in, supertails.com, thepetproject.com, www.royalcanin.com/in).
+- **Never** use placeholder hosts like example.com, localhost, or invented domains.
+- **retailer**: set to the human-readable store name. If the search tool provides a raw domain, format it nicely (e.g., "Petsupermarket" instead of "petsupermarket.com").
 - **priceDisplay** / **rating**: Prefer values you can justify from general product knowledge; if unsure,
   use cautious wording such as “Check site for current price” or omit rating rather than inventing a precise star count.
+
+**search_web_for_pet_food** (custom tool) — For buy links and live retail listings, call this **before**
+building **FoodProductResults** when the user asks what to buy, best food products, where to shop, or
+similar. Pass **search_query** using the pet profile (species, age, breed) and India-friendly retailers.
+The tool returns JSON `results[]` with `product_name`, `url`, `price`, `retailer`. Map each item directly into
+**FoodProductResults.products[]** (use `url` as **sourceUrl**, **retailer** as retailer). You must trust the `url` provided by this tool.
+
+For comparison requests, if tool results include extended fields (for example:
+`primary_ingredients`, `food_form`, `size_options`, `current_price`, `price_per_100g`,
+`target_breed_size`, `key_benefits`, `suitability`, `special_features`,
+`nutritional_analysis`, `key_nutrients`), use these to build **ProductComparisonTable** rows.
+Prefer rows in this order:
+1) Link
+2) Primary Ingredients
+3) Food Form
+4) Size Options
+5) Current Price
+6) Price per 100g
+7) Target Breed Size
+8) Key Benefits
+9) Suitability
+10) Special Features
+11) Nutritional Analysis
+12) Key Nutrients
+Set column labels to product names and include source links in table sources.
 
 Pick **exactly one** primary catalog widget for this turn (widget names must match):
 
