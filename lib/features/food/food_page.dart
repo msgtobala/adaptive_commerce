@@ -211,6 +211,14 @@ Prefer rows in this order:
 12) Key Nutrients
 Set column labels to product names and include source links in table sources.
 
+For each comparison table, you MUST include rows labeled exactly `Key Benefits` and `Nutritional Analysis` when the tool results provide `key_benefits` / `nutritional_analysis`.
+Also keep any `Description` text concise (<= 2 sentences) so it doesn't push the rest of the table out of view.
+
+Format rules for these rows:
+- `Key Benefits` value = the tool's `key_benefits` string (no extra prefixes).
+- `Nutritional Analysis` value = flatten the tool's `nutritional_analysis` map into a short comma-separated string
+  (e.g., `Protein: 31%, Fat: 20%, Fiber: 1.4%`).
+
 Pick **exactly one** primary catalog widget for this turn (widget names must match):
 
 1. **FoodProductResults** — food recommendations / “what food should I give”.

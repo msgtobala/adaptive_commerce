@@ -433,28 +433,45 @@ class _ProductComparisonTableBody extends StatelessWidget {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Table(
-                defaultColumnWidth: const IntrinsicColumnWidth(),
+                columnWidths: <int, TableColumnWidth>{
+                  0: const FixedColumnWidth(180),
+                  for (var i = 1; i <= columnLabels.length; i++)
+                    i: const FixedColumnWidth(260),
+                },
+                defaultColumnWidth: const FixedColumnWidth(260),
                 border: TableBorder.all(color: AppColors.divider, width: 1),
                 children: [
                   TableRow(
                     decoration: const BoxDecoration(
                       color: AppColors.surfaceContainer,
                     ),
-                    children: columnLabels
-                        .map(
-                          (label) => Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              label,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: AppColors.headline,
-                                fontWeight: FontWeight.w600,
-                                height: 1.25,
-                              ),
+                    children: [
+                      // First column is always the comparison category (row label).
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          'Category',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: AppColors.headline,
+                            fontWeight: FontWeight.w600,
+                            height: 1.25,
+                          ),
+                        ),
+                      ),
+                      ...columnLabels.map(
+                        (label) => Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            label,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: AppColors.headline,
+                              fontWeight: FontWeight.w600,
+                              height: 1.25,
                             ),
                           ),
-                        )
-                        .toList(),
+                        ),
+                      ),
+                    ],
                   ),
                   ...rows.map((row) {
                     final label = _str(row, 'label', '—');
@@ -462,25 +479,29 @@ class _ProductComparisonTableBody extends StatelessWidget {
                     final cells = <String>[
                       label,
                       ...List.generate(
-                        columnLabels.length - 1,
+                        columnLabels.length,
                         (i) => i < vals.length ? vals[i] : '—',
                       ),
                     ];
                     return TableRow(
-                      children: cells
-                          .map(
-                            (c) => Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                c,
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: AppColors.deepBrown,
-                                  height: 1.35,
-                                ),
-                              ),
+                      children: cells.asMap().entries.map((entry) {
+                        final cellIndex = entry.key;
+                        final c = entry.value;
+                        final isCategoryColumn = cellIndex == 0;
+                        return Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            c,
+                            softWrap: true,
+                            maxLines: isCategoryColumn ? 2 : 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: AppColors.deepBrown,
+                              height: 1.35,
                             ),
-                          )
-                          .toList(),
+                          ),
+                        );
+                      }).toList(),
                     );
                   }),
                 ],
