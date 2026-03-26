@@ -1,9 +1,9 @@
 /// Canonical paths and names for [GoRouter].
 enum AppRoute {
   onboarding('/onboarding'),
-  foodToys('/food-toys'),
+  food('/food'),
   vet('/vet'),
-  medication('/medication');
+  toys('/toys');
 
   const AppRoute(this.path);
 
@@ -11,9 +11,9 @@ enum AppRoute {
 
   /// Tabs in [StatefulShellRoute] (same order as branches).
   static const List<AppRoute> shellTabRoutes = [
-    foodToys,
+    food,
     vet,
-    medication,
+    toys,
   ];
 
   /// First main tab (default after onboarding / error recovery).

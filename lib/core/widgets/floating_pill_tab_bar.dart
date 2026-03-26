@@ -45,12 +45,12 @@ class FloatingPillTabBar extends StatelessWidget {
           fontWeight: FontWeight.w600,
         );
 
-    // Food / Vet: Material Symbols rounded ([Symbols.*_rounded]). Medication: [Icons.*_rounded].
+    // Food / Vet / Toys — Material Symbols rounded where available.
     final tabs = <({IconData outlined, IconData filled, String label})>[
       (
         outlined: Symbols.pet_supplies_rounded,
         filled: Symbols.pet_supplies_rounded,
-        label: AppStrings.navFoodToys,
+        label: AppStrings.navFood,
       ),
       (
         outlined: Symbols.pets_rounded,
@@ -58,9 +58,9 @@ class FloatingPillTabBar extends StatelessWidget {
         label: AppStrings.navVeterinary,
       ),
       (
-        outlined: Icons.medication_rounded,
-        filled: Icons.medication_rounded,
-        label: AppStrings.navMedication,
+        outlined: Symbols.toys_rounded,
+        filled: Symbols.toys_rounded,
+        label: AppStrings.navToys,
       ),
     ];
 

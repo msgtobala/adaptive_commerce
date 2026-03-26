@@ -4,8 +4,8 @@ import 'package:adaptive_commerce/core/firebase/firebase_ai_config.dart';
 import 'package:adaptive_commerce/core/firebase/firebase_providers.dart';
 import 'package:adaptive_commerce/core/resources/app_strings.dart';
 import 'package:adaptive_commerce/core/widgets/shell_prompt_bar.dart';
-import 'package:adaptive_commerce/features/food_toys/catalog/food_toys_catalog.dart';
-import 'package:adaptive_commerce/features/food_toys/pet_profile_prompt.dart';
+import 'package:adaptive_commerce/features/food/catalog/food_catalog.dart';
+import 'package:adaptive_commerce/features/food/pet_profile_prompt.dart';
 import 'package:adaptive_commerce/features/onboarding/pet_profile_provider.dart';
 import 'package:adaptive_commerce/theme/styles/app_colors.dart';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
@@ -14,15 +14,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 
-/// Food & toys assistant: GenUI + Firebase AI (GenUI function tools only).
-class FoodToysPage extends ConsumerStatefulWidget {
-  const FoodToysPage({super.key});
+/// Food assistant: GenUI + Firebase AI (GenUI function tools only).
+class FoodPage extends ConsumerStatefulWidget {
+  const FoodPage({super.key});
 
   @override
-  ConsumerState<FoodToysPage> createState() => _FoodToysPageState();
+  ConsumerState<FoodPage> createState() => _FoodPageState();
 }
 
-class _FoodToysPageState extends ConsumerState<FoodToysPage> {
+class _FoodPageState extends ConsumerState<FoodPage> {
   late final GenUiConversation _conversation;
   final List<String> _surfaceIds = [];
   bool _didBootstrap = false;
@@ -31,14 +31,14 @@ class _FoodToysPageState extends ConsumerState<FoodToysPage> {
   void initState() {
     super.initState();
 
-    final catalog = foodToysCatalog;
+    final catalog = foodCatalog;
     final firebaseAI = ref.read(firebaseAIProvider);
 
     final processor = A2uiMessageProcessor(catalogs: [catalog]);
 
     final contentGenerator = FirebaseAiContentGenerator(
       catalog: catalog,
-      systemInstruction: _foodToysSystemInstruction,
+      systemInstruction: _foodSystemInstruction,
       modelCreator:
           ({
             required FirebaseAiContentGenerator configuration,
@@ -81,14 +81,19 @@ class _FoodToysPageState extends ConsumerState<FoodToysPage> {
       unawaited(
         _conversation.sendRequest(
           UserMessage.text(
-            foodToysMessageWithProfile(
+            foodTabMessageWithProfile(
               profile,
-              'Welcome the user to Food & toys. On a new surface, render exactly one '
-              'PetTopicAdvice: topic "general", title "Food & toys", summary inviting '
-              'questions, bullets with short example prompts (food for my pet, compare '
-              'foods, feeding amounts, food safety, habits, toys, chewing behavior). '
-              'Use beginRendering and surfaceUpdate per GenUI. Then call '
-              'provideFinalOutput with a one-line greeting.',
+              'Welcome the user to Food. On a new surface, render exactly one '
+              'PetTopicAdvice: topic "general", title "Food", summary inviting '
+              'questions about pet food and eating, and exactly **seven** bullets '
+              'with short example prompts. The first five may be general food topics '
+              '(e.g. best food for my pet, compare two foods, how much to feed, '
+              'whether an ingredient or food is safe, feeding habits). The **sixth** '
+              'bullet must be: "What ingredients should I look for on a pet food label?" '
+              'The **seventh** must be: "How do I transition my pet to a new food safely?" '
+              'Do not include toy, chewing, or play prompts. Use beginRendering and '
+              'surfaceUpdate per GenUI. Then call provideFinalOutput with a one-line '
+              'greeting.',
             ),
           ),
         ),
@@ -107,7 +112,7 @@ class _FoodToysPageState extends ConsumerState<FoodToysPage> {
     final profile = ref.read(petProfileProvider);
     unawaited(
       _conversation.sendRequest(
-        UserMessage.text(foodToysMessageWithProfile(profile, text)),
+        UserMessage.text(foodTabMessageWithProfile(profile, text)),
       ),
     );
   }
@@ -124,7 +129,7 @@ class _FoodToysPageState extends ConsumerState<FoodToysPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 24, 0),
               child: Text(
-                AppStrings.navFoodToys,
+                AppStrings.navFood,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(color: AppColors.headline),
@@ -163,8 +168,8 @@ class _FoodToysPageState extends ConsumerState<FoodToysPage> {
   }
 }
 
-const String _foodToysSystemInstruction = '''
-You are Happy Paws’ Food & Toys assistant. The user message always includes a
+const String _foodSystemInstruction = '''
+You are Happy Paws’ Food assistant. The user message always includes a
 **Pet profile** block and a **User question**. Respect the profile (species, age,
 breed, gender) for every answer.
 
@@ -177,21 +182,26 @@ Pick **exactly one** primary catalog widget for this turn (widget names must mat
    products[]: name, priceDisplay, rating, description, ingredients[], sourceUrl,
    optional retailer.
 
-2. **ProductComparisonTable** — compare products. columnLabels + rows (label, values[]).
+2. **ProductComparisonTable** — compare foods. columnLabels + rows (label, values[]).
 
-3. **FeedingGuide** — how much to feed for a named product. productName, summary,
-   lines[] (each string like "5–10 kg adult: 1 cup twice daily"), optional caution,
-   sourceUrl.
+3. **FeedingQuantityGuide** — how much to feed for a named product. productName,
+   summary, rows[] each { band, amount } (weight or life stage band and feeding amount),
+   optional caution, sourceUrl.
 
-4. **PetTopicAdvice** — food safety (“carrots?”), feeding habits do/don’t, toy ideas,
-   biting/behavior, or any other food/toy Q&A. Fields: title, topic (one of
-   food_safety, feeding_habits, toys, behavior, general), summary, bullets[],
-   optional dos[], donts[], sources[]. Use dos/donts when habits; bullets for lists;
-   topic=behavior for chewing/biting questions.
+4. **PetFoodSafetyAnswer** — “Can I feed …?” style safety. questionSummary,
+   safeLevel, explanation, optional bullets[], sources[].
+
+5. **PetHabitTips** — feeding habit do’s and don’ts. title, dos[], donts[],
+   optional sources[].
+
+6. **PetTopicAdvice** — welcome copy or misc food Q&A. Fields: title, topic,
+   summary, bullets[], optional dos[], donts[], sources[].
+   **topic must be exactly one of:** general, treats, transition. Do not use
+   toys, behavior, chewing, or non-food topics.
 
 **GenUI protocol**
 - Create or update surfaces with **beginRendering**, **surfaceUpdate**, and catalog
-  widgets only from this app’s Food & Toys catalog (names above).
+  widgets only from this app’s Food catalog (names above).
 - Prefer **one new surface per answer** (append to the conversation). You may use
   Column/Text for short labels around the main widget.
 - When done with UI for the turn, you **must** call **provideFinalOutput** with a

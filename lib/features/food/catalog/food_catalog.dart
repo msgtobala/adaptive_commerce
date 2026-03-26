@@ -3,15 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// Core GenUI catalog + four Food & Toys [CatalogItem]s (strict schemas, smaller surface).
-final Catalog foodToysCatalog = CoreCatalogItems.asCatalog().copyWith([
-  foodProductResults,
-  productComparisonTable,
-  feedingGuide,
-  petTopicAdvice,
-]);
+/// Slim core + Food-tab [CatalogItem]s (strict schemas).
+///
+/// Keeping only essential core primitives significantly reduces the generated
+/// tool schema size while preserving strict custom schemas.
+final Catalog foodCatalog = Catalog(
+  [
+    CoreCatalogItems.column,
+    CoreCatalogItems.row,
+    CoreCatalogItems.text,
+    CoreCatalogItems.card,
+    CoreCatalogItems.divider,
+    foodProductResults,
+    productComparisonTable,
+    feedingQuantityGuide,
+    petFoodSafetyAnswer,
+    petHabitTips,
+    petTopicAdvice,
+  ],
+  // Keep the standard catalog ID so beginRendering/surfaceUpdate payloads that
+  // reference the default ID can still resolve this catalog in the processor.
+  catalogId: 'a2ui.org:standard_catalog_0_8_0',
+);
 
-// --- Shared schemas (nested) ---
+// --- Shared schemas ---
 
 final Schema _foodProductEntrySchema = S.object(
   properties: {
@@ -34,7 +49,10 @@ final Schema _comparisonRowSchema = S.object(
   required: ['label', 'values'],
 );
 
-// --- Top-level schemas ---
+final Schema _feedingRowSchema = S.object(
+  properties: {'band': S.string(), 'amount': S.string()},
+  required: ['band', 'amount'],
+);
 
 final Schema _foodProductResultsSchema = S.object(
   properties: {
@@ -55,15 +73,36 @@ final Schema _productComparisonTableSchema = S.object(
   required: ['title', 'columnLabels', 'rows'],
 );
 
-final Schema _feedingGuideSchema = S.object(
+final Schema _feedingQuantityGuideSchema = S.object(
   properties: {
     'productName': S.string(),
     'summary': S.string(),
-    'lines': S.list(items: S.string()),
+    'rows': S.list(items: _feedingRowSchema),
     'caution': S.string(),
     'sourceUrl': S.string(),
   },
-  required: ['productName', 'summary', 'lines'],
+  required: ['productName', 'summary', 'rows'],
+);
+
+final Schema _petFoodSafetyAnswerSchema = S.object(
+  properties: {
+    'questionSummary': S.string(),
+    'safeLevel': S.string(),
+    'explanation': S.string(),
+    'bullets': S.list(items: S.string()),
+    'sources': S.list(items: S.string()),
+  },
+  required: ['questionSummary', 'safeLevel', 'explanation'],
+);
+
+final Schema _petHabitTipsSchema = S.object(
+  properties: {
+    'title': S.string(),
+    'dos': S.list(items: S.string()),
+    'donts': S.list(items: S.string()),
+    'sources': S.list(items: S.string()),
+  },
+  required: ['title', 'dos', 'donts'],
 );
 
 final Schema _petTopicAdviceSchema = S.object(
@@ -107,17 +146,46 @@ final CatalogItem productComparisonTable = CatalogItem(
   },
 );
 
-final CatalogItem feedingGuide = CatalogItem(
-  name: 'FeedingGuide',
-  dataSchema: _feedingGuideSchema,
+final CatalogItem feedingQuantityGuide = CatalogItem(
+  name: 'FeedingQuantityGuide',
+  dataSchema: _feedingQuantityGuideSchema,
   widgetBuilder: (itemContext) {
     final data = itemContext.data as JsonMap;
-    return _FeedingGuideBody(
+    return _FeedingQuantityGuideBody(
       productName: _str(data, 'productName', 'Product'),
       summary: _str(data, 'summary', ''),
-      lines: _stringList(data['lines']),
+      rows: _mapList(data['rows']),
       caution: _optionalStr(data['caution']),
       sourceUrl: _optionalStr(data['sourceUrl']),
+    );
+  },
+);
+
+final CatalogItem petFoodSafetyAnswer = CatalogItem(
+  name: 'PetFoodSafetyAnswer',
+  dataSchema: _petFoodSafetyAnswerSchema,
+  widgetBuilder: (itemContext) {
+    final data = itemContext.data as JsonMap;
+    return _PetFoodSafetyAnswerBody(
+      questionSummary: _str(data, 'questionSummary', ''),
+      safeLevel: _str(data, 'safeLevel', 'unknown'),
+      explanation: _str(data, 'explanation', ''),
+      bullets: _stringList(data['bullets']),
+      sources: _stringList(data['sources']),
+    );
+  },
+);
+
+final CatalogItem petHabitTips = CatalogItem(
+  name: 'PetHabitTips',
+  dataSchema: _petHabitTipsSchema,
+  widgetBuilder: (itemContext) {
+    final data = itemContext.data as JsonMap;
+    return _PetHabitTipsBody(
+      title: _str(data, 'title', 'Tips'),
+      dos: _stringList(data['dos']),
+      donts: _stringList(data['donts']),
+      sources: _stringList(data['sources']),
     );
   },
 );
@@ -410,18 +478,18 @@ class _ProductComparisonTableBody extends StatelessWidget {
   }
 }
 
-class _FeedingGuideBody extends StatelessWidget {
-  const _FeedingGuideBody({
+class _FeedingQuantityGuideBody extends StatelessWidget {
+  const _FeedingQuantityGuideBody({
     required this.productName,
     required this.summary,
-    required this.lines,
+    required this.rows,
     this.caution,
     this.sourceUrl,
   });
 
   final String productName;
   final String summary;
-  final List<String> lines;
+  final List<JsonMap> rows;
   final String? caution;
   final String? sourceUrl;
 
@@ -455,17 +523,35 @@ class _FeedingGuideBody extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ...lines.map(
-              (line) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  '• $line',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.deepBrown,
-                  ),
+            ...rows.map((r) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        _str(r, 'band', '—'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.headline,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        _str(r, 'amount', '—'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.deepBrown,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
+              );
+            }),
             if (caution != null) ...[
               const SizedBox(height: 8),
               Text(
@@ -481,6 +567,216 @@ class _FeedingGuideBody extends StatelessWidget {
                 sourceUrl!,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppColors.primary,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PetFoodSafetyAnswerBody extends StatelessWidget {
+  const _PetFoodSafetyAnswerBody({
+    required this.questionSummary,
+    required this.safeLevel,
+    required this.explanation,
+    this.bullets = const [],
+    this.sources = const [],
+  });
+
+  final String questionSummary;
+  final String safeLevel;
+  final String explanation;
+  final List<String> bullets;
+  final List<String> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              questionSummary,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppColors.headline,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Chip(
+              label: Text(
+                safeLevel.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: AppColors.onPrimary,
+                ),
+              ),
+              backgroundColor: AppColors.primary,
+              side: BorderSide.none,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              explanation,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.deepBrown,
+              ),
+            ),
+            if (bullets.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ...bullets.map(
+                (b) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '• ',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          b,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppColors.deepBrown,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            if (sources.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Sources',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: AppColors.headline,
+                ),
+              ),
+              ...sources.map(
+                (u) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: SelectableText(
+                    u,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PetHabitTipsBody extends StatelessWidget {
+  const _PetHabitTipsBody({
+    required this.title,
+    required this.dos,
+    required this.donts,
+    this.sources = const [],
+  });
+
+  final String title;
+  final List<String> dos;
+  final List<String> donts;
+  final List<String> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppColors.headline,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Do',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: AppColors.success,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            ...dos.map(
+              (t) => Padding(
+                padding: const EdgeInsets.only(left: 8, top: 4),
+                child: Text(
+                  '• $t',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.deepBrown,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Don't",
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: AppColors.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            ...donts.map(
+              (t) => Padding(
+                padding: const EdgeInsets.only(left: 8, top: 4),
+                child: Text(
+                  '• $t',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.deepBrown,
+                  ),
+                ),
+              ),
+            ),
+            if (sources.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Sources',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: AppColors.headline,
+                ),
+              ),
+              ...sources.map(
+                (u) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: SelectableText(
+                    u,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
               ),
             ],

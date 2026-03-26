@@ -28,9 +28,9 @@ abstract final class AppStrings {
       'No details yet. Finish onboarding to fill your pet profile.';
 
   // --- Main shell (top tab bar) ---
-  static const String navFoodToys = 'Food & toys';
+  static const String navFood = 'Food';
   static const String navVeterinary = 'Veterinary';
-  static const String navMedication = 'Medication';
+  static const String navToys = 'Toys';
 
   // --- Routing ---
   static const String routeNotFoundTitle = 'Page not found';

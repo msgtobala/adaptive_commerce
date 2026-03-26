@@ -1,7 +1,7 @@
 import 'package:adaptive_commerce/core/resources/app_strings.dart';
 import 'package:adaptive_commerce/core/widgets/app_brand_header.dart';
-import 'package:adaptive_commerce/features/food_toys/food_toys_page.dart';
-import 'package:adaptive_commerce/features/medication/medication_page.dart';
+import 'package:adaptive_commerce/features/food/food_page.dart';
+import 'package:adaptive_commerce/features/toys/toys_page.dart';
 import 'package:adaptive_commerce/features/onboarding/onboarding_page.dart';
 import 'package:adaptive_commerce/layout/main_layout.dart';
 import 'package:adaptive_commerce/features/vet/vet_page.dart';
@@ -31,9 +31,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoute.foodToys.path,
-                name: AppRoute.foodToys.name,
-                builder: (context, state) => const FoodToysPage(),
+                path: AppRoute.food.path,
+                name: AppRoute.food.name,
+                builder: (context, state) => const FoodPage(),
               ),
             ],
           ),
@@ -49,9 +49,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoute.medication.path,
-                name: AppRoute.medication.name,
-                builder: (context, state) => const MedicationPage(),
+                path: AppRoute.toys.path,
+                name: AppRoute.toys.name,
+                builder: (context, state) => const ToysPage(),
               ),
             ],
           ),
