@@ -53,6 +53,9 @@ class _PetProfileBody extends StatelessWidget {
     final dobText = profile.dateOfBirth != null
         ? MaterialLocalizations.of(context).formatFullDate(profile.dateOfBirth!)
         : '—';
+    final ageText = profile.dateOfBirth != null
+        ? formatAgeInMonthsLabel(profile.dateOfBirth!)
+        : '—';
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -61,6 +64,7 @@ class _PetProfileBody extends StatelessWidget {
         _line(context, 'Type', profile.petType?.name ?? '—'),
         _line(context, 'Name', profile.name.trim().isNotEmpty ? profile.name : '—'),
         _line(context, 'Date of birth', dobText),
+        _line(context, 'Age', ageText),
         _line(context, 'Breed', profile.breed.trim().isNotEmpty ? profile.breed : '—'),
         _line(
           context,
