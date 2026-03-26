@@ -51,6 +51,7 @@ class PetProfile {
 
 /// Short breed labels for dropdowns (per [PetKind]).
 List<String> dogBreeds = const [
+  'Maltipoo',
   'Labrador Retriever',
   'Golden Retriever',
   'German Shepherd',
@@ -60,6 +61,7 @@ List<String> dogBreeds = const [
 ];
 
 List<String> catBreeds = const [
+  'Indian Spotted Cat',
   'Persian',
   'Siamese',
   'Maine Coon',
