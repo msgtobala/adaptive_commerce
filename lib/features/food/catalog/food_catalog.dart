@@ -348,7 +348,9 @@ class _FoodProductResultsBody extends StatelessWidget {
                         Builder(
                           builder: (context) {
                             final sourceUrl = _str(p, 'sourceUrl', '').trim();
-                            if (sourceUrl.isEmpty) return const SizedBox.shrink();
+                            if (sourceUrl.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
                             final uri = Uri.tryParse(sourceUrl);
                             final canOpen = uri != null && uri.hasScheme;
                             return InkWell(
@@ -360,9 +362,13 @@ class _FoodProductResultsBody extends StatelessWidget {
                                         mode: LaunchMode.externalApplication,
                                       );
                                       if (!ok && context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
-                                            content: Text('Could not open link'),
+                                            content: Text(
+                                              'Could not open link',
+                                            ),
                                           ),
                                         );
                                       }
@@ -436,7 +442,7 @@ class _ProductComparisonTableBody extends StatelessWidget {
                 columnWidths: <int, TableColumnWidth>{
                   0: const FixedColumnWidth(180),
                   for (var i = 1; i <= columnLabels.length; i++)
-                    i: const FixedColumnWidth(260),
+                    i: const FixedColumnWidth(300),
                 },
                 defaultColumnWidth: const FixedColumnWidth(260),
                 border: TableBorder.all(color: AppColors.divider, width: 1),
@@ -932,8 +938,10 @@ class _PetTopicAdviceBody extends StatelessWidget {
                   ),
                   backgroundColor: AppColors.primary,
                   side: BorderSide.none,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 2,
+                  ),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],

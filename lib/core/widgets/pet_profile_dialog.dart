@@ -26,8 +26,9 @@ void showPetProfileDialog(BuildContext context, PetProfile profile) {
           child: isEmpty
               ? Text(
                   AppStrings.petProfileEmpty,
-                  style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(
                         color: AppColors.deepBrown,
+                        height: 1.4,
                       ),
                 )
               : _PetProfileBody(profile: profile),
@@ -79,25 +80,27 @@ class _PetProfileBody extends StatelessWidget {
 
   Widget _line(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 112,
+            width: 124,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.deepBrown,
                     fontWeight: FontWeight.w600,
+                    height: 1.4,
                   ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.headline,
+                    height: 1.4,
                   ),
             ),
           ),

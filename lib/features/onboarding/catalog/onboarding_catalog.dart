@@ -648,18 +648,20 @@ class _PetProfileCardBody extends ConsumerWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.headline,
                 fontWeight: FontWeight.w600,
+                height: 1.25,
               ),
             ),
-            const SizedBox(height: 12),
-            _line('Type', p.petType?.name ?? '—'),
-            _line('Name', p.name.isNotEmpty ? p.name : '—'),
-            _line('Date of birth', dobText),
-            _line('Age', ageText),
-            _line('Breed', p.breed.isNotEmpty ? p.breed : '—'),
+            const SizedBox(height: 14),
+            _line(context, 'Type', p.petType?.name ?? '—'),
+            _line(context, 'Name', p.name.isNotEmpty ? p.name : '—'),
+            _line(context, 'Date of birth', dobText),
+            _line(context, 'Age', ageText),
+            _line(context, 'Breed', p.breed.isNotEmpty ? p.breed : '—'),
             _line(
+              context,
               'Gender',
               p.gender != null
                   ? (p.gender == PetGender.male ? 'Male' : 'Female')
@@ -676,23 +678,29 @@ class _PetProfileCardBody extends ConsumerWidget {
     );
   }
 
-  Widget _line(String k, String v) {
+  Widget _line(BuildContext context, String k, String v) {
+    final summaryStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: AppColors.deepBrown,
+          height: 1.4,
+        );
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 110,
+            width: 124,
             child: Text(
               k,
-              style: const TextStyle(
-                color: AppColors.deepBrown,
-                fontWeight: FontWeight.w500,
-              ),
+              style: summaryStyle?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
-          Expanded(child: Text(v)),
+          Expanded(
+            child: Text(
+              v,
+              style: summaryStyle,
+            ),
+          ),
         ],
       ),
     );

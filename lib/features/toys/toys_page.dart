@@ -190,6 +190,9 @@ CRITICAL — toy shopping & suggestions (read carefully):
   you **MUST** (1) call **fetch_toys_from_firestore** first, then (2) render **ToySuggestionResults**
   populated from the tool’s **toys[]**. Do **not** answer with only generic Text, Column, or
   CoreCatalogItems.text for these requests — the **ToySuggestionResults** widget is mandatory.
+- For those product/suggestion turns, you MUST call **beginRendering** with a NEW unique **surfaceId**
+  and set **root** to the ToySuggestionResults component id for that turn (for example
+  `toy_suggestions_<turnId>`). Do NOT rely on only surfaceUpdate on an existing root.
 - You **MUST NOT** say you “couldn’t find toys in our catalog” or imply the store is empty
   **until after** the tool has run. Never invent inventory; use only tool output.
 - If **filter_fallback** is true in the tool response, mention in **summary** that listings are
@@ -223,6 +226,12 @@ Routing:
 
 Safety: supervision for chews/small parts; vet when unsure.
 
-GenUI: beginRendering / surfaceUpdate; Toys catalog widgets only; one surface per turn;
-then provideFinalOutput with a short string.
+GenUI protocol (strict):
+- On every assistant turn, start a NEW surface via **beginRendering** with a unique `surfaceId`.
+- The beginRendering **root** MUST be the primary widget for that turn:
+  - ToyTopicAdvice turn -> root points to ToyTopicAdvice component id.
+  - ToySuggestionResults turn -> root points to ToySuggestionResults component id.
+- Use **surfaceUpdate** only to provide/update components for that same turn/surface.
+- Do not update an old surface while keeping an unrelated old root.
+- Toys catalog widgets only; prefer one surface per turn; then call **provideFinalOutput**.
 ''';

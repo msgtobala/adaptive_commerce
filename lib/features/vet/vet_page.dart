@@ -246,9 +246,15 @@ Widget field requirements:
 - summary: welcome + what you can help with.
 - bullets: exactly 7 example prompts.
 
-GenUI protocol:
-- Create or update surfaces with beginRendering, surfaceUpdate, and catalog widgets only
-  from this Veterinary catalog.
-- Prefer one new surface per user turn.
+GenUI protocol (strict):
+- On every assistant turn, start a NEW surface via **beginRendering** with a unique `surfaceId`.
+- The beginRendering **root** MUST be the primary widget for that turn:
+  - VetVaccinationSchedule turn -> root points to that widget id.
+  - VetRemediesAnswer turn -> root points to that widget id.
+  - VetNearestVetFinder turn -> root points to that widget id.
+  - VetTopicAdvice turn -> root points to that widget id.
+- Use **surfaceUpdate** only to provide/update components for that same turn/surface.
+- Do not update an old surface while keeping an unrelated old root.
+- Use catalog widgets only from this Veterinary catalog.
 - When done with UI for the turn, call provideFinalOutput with a short summary string.
 ''';
