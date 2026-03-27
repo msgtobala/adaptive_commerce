@@ -1,13 +1,15 @@
 import 'dart:convert';
 
 import 'package:adaptive_commerce/core/config/logging_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:genui/genui.dart';
 import 'package:http/http.dart' as http;
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 /// Searches real vet clinics using the Google Places API.
 ///
-/// Requires a `--dart-define=GOOGLE_PLACES_API_KEY=...` at build/run time.
+/// Reads `GOOGLE_PLACES_API_KEY` from `.env` via `flutter_dotenv`.
+/// Falls back to `--dart-define=GOOGLE_PLACES_API_KEY=...` when needed.
 DynamicAiTool<JsonMap> createVetPlacesTool() {
   return DynamicAiTool<JsonMap>(
     name: 'search_nearest_vets',
@@ -28,16 +30,19 @@ DynamicAiTool<JsonMap> createVetPlacesTool() {
         return {'places': <Object>[], 'error': 'area_query is required'};
       }
 
-      const apiKey = String.fromEnvironment(
+      final apiKeyFromEnv = dotenv.env['GOOGLE_PLACES_API_KEY']?.trim() ?? '';
+      const apiKeyFromDefine = String.fromEnvironment(
         'GOOGLE_PLACES_API_KEY',
-        defaultValue: 'AIzaSyCTH97ArFkSSzVGvhPUNNFnn22zZ2sn2TM',
+        defaultValue: '',
       );
+      final apiKey = apiKeyFromEnv.isNotEmpty ? apiKeyFromEnv : apiKeyFromDefine;
 
       if (apiKey.isEmpty) {
         appLog.warning('GOOGLE_PLACES_API_KEY missing.');
         return {
           'places': <Object>[],
-          'error': 'Missing GOOGLE_PLACES_API_KEY. Provide via --dart-define.',
+          'error':
+              'Missing GOOGLE_PLACES_API_KEY. Provide via .env or --dart-define.',
         };
       }
 

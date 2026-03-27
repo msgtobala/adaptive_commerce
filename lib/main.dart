@@ -5,11 +5,18 @@ import 'package:adaptive_commerce/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureLogging();
   configureGlobalErrorHandling();
+  try {
+    await dotenv.load(fileName: '.env');
+    appLog.info('.env loaded');
+  } catch (e, st) {
+    appLog.warning('Failed to load .env. Continuing without dotenv.', e, st);
+  }
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -20,9 +27,5 @@ Future<void> main() async {
   }
   appLog.info('Firebase initialized');
 
-  runApp(
-    const ProviderScope(
-      child: App(),
-    ),
-  );
+  runApp(const ProviderScope(child: App()));
 }
